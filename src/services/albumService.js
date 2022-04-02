@@ -40,7 +40,7 @@ class AlbumService {
 
   async updateAlbum (id, { name, year }) {
     const query = {
-      text: 'UPDATE albums SET name = $1, year = $2, updated_at = $3 WHERE id = $4',
+      text: 'UPDATE albums SET name = $1, year = $2, updated_at = $3 WHERE id = $4 RETURNING id',
       values: [name, year, new Date(), id]
     }
 
@@ -51,7 +51,7 @@ class AlbumService {
 
   async deleteAlbum (id) {
     const query = {
-      text: 'DELETE FROM albums WHERE id = $1',
+      text: 'DELETE FROM albums WHERE id = $1 RETURNING id',
       values: [id]
     }
 
