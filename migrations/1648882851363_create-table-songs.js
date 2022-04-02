@@ -26,9 +26,9 @@ exports.up = pgm => {
     },
     duration: {
       type: 'INTEGER',
-      default: 120
+      default: null
     },
-    albumId: {
+    album_id: {
       type: 'VARCHAR(50)',
       default: null
     },
