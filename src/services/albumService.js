@@ -2,7 +2,7 @@ const { Pool } = require('pg')
 const { nanoid } = require('nanoid')
 const InvariantError = require('../exceptions/InvariantError')
 const NotFoundError = require('../exceptions/NotFoundError')
-const { mapAlbumToModel } = require('../utils/mapping/index')
+const { mapAlbumToModel, mapSongToModel } = require('../utils/mapping/index')
 
 class AlbumService {
   constructor () {
@@ -57,6 +57,32 @@ class AlbumService {
     const res = await this._pool.query(query)
 
     if (!res.rows.length) throw new NotFoundError('Fail to delete album. Album not found.')
+  }
+
+  async checkIfAnySongExistByAlbumId (id) {
+    const query = {
+      text: 'SELECT * FROM songs WHERE album_id = $1',
+      values: [id]
+    }
+
+    const res = await this._pool.query(query)
+
+    if (res.rows.length) return true
+
+    return false
+  }
+
+  async getSongByAlbumId (id) {
+    const query = {
+      text: 'SELECT * FROM songs WHERE album_id = $1',
+      values: [id]
+    }
+
+    const res = await this._pool.query(query)
+
+    if (!res.rows.length) throw new NotFoundError('Album not found')
+
+    return res.rows.map(mapSongToModel)
   }
 }
 

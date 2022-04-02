@@ -70,6 +70,48 @@ class SongService {
 
     if (!res.rows.length) throw new NotFoundError('Fail to delete song')
   }
+
+  async querySongByTitle (title) {
+    // Create a query to get songs which contain title
+    const query = {
+      text: 'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1)',
+      values: [`%${title}%`]
+    }
+
+    const res = await this._pool.query(query)
+
+    if (!res.rows.length) throw new NotFoundError('No songs found')
+
+    return res.rows.map(mapSongsToModel)
+  }
+
+  async querySongByPerformer (performer) {
+    // Create a query to get songs which contain performer
+    const query = {
+      text: 'SELECT * FROM songs WHERE LOWER(performer) LIKE LOWER($1)',
+      values: [`%${performer}%`]
+    }
+
+    const res = await this._pool.query(query)
+
+    if (!res.rows.length) throw new NotFoundError('No songs found')
+
+    return res.rows.map(mapSongsToModel)
+  }
+
+  async querySongByTitleAndPerformer (title, performer) {
+    // Create a query to get songs which contain title and performer
+    const query = {
+      text: 'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1) AND LOWER(performer) LIKE LOWER($2)',
+      values: [`%${title}%`, `%${performer}%`]
+    }
+
+    const res = await this._pool.query(query)
+
+    if (!res.rows.length) throw new NotFoundError('No songs found')
+
+    return res.rows.map(mapSongsToModel)
+  }
 }
 
 module.exports = SongService

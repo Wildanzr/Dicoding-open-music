@@ -92,9 +92,25 @@ class SongHandler {
   }
 
   async getAllSongsHandler (request, h) {
+    const { title, performer } = request.query
+    let songs
     try {
-      // Call service getAllSongs
-      const songs = await this._service.getAllSongs()
+      if (title && performer) {
+        // If title and performer are set, call service getAllSongsByTitleAndPerformer
+        console.log('There is a title and performer')
+        songs = await this._service.querySongByTitleAndPerformer(title, performer)
+      } else if (title) {
+        // If only title is set, call service getAllSongsByTitle
+        console.log('There is only a title')
+        songs = await this._service.querySongByTitle(title)
+      } else if (performer) {
+        // If only performer is set, call service getAllSongsByPerformer
+        console.log('There is only a performer')
+        songs = await this._service.querySongByPerformer(performer)
+      } else {
+        // Call service getAllSongs
+        songs = await this._service.getAllSongs()
+      }
 
       // Make response object
       const res = successResponse(null, { songs })

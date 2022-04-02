@@ -61,11 +61,26 @@ class AlbumHandler {
       // Call service getAlbumById
       let album = await this._service.getAlbumById(id)
 
-      // Map album to response object
-      album = {
-        id: album.id,
-        name: album.name,
-        year: album.year
+      // Check if any song exist in album
+      const songs = await this._service.checkIfAnySongExistByAlbumId(id)
+
+      if (songs) {
+        // Call service getSongByAlbumId
+        const songs = await this._service.getSongByAlbumId(id)
+
+        album = {
+          id: album.id,
+          name: album.name,
+          year: album.year,
+          songs: songs
+        }
+      } else {
+        // Map album to response object
+        album = {
+          id: album.id,
+          name: album.name,
+          year: album.year
+        }
       }
 
       // Make response object
