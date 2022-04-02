@@ -72,7 +72,6 @@ class SongService {
   }
 
   async querySongByTitle (title) {
-    // Create a query to get songs which contain title
     const query = {
       text: 'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1)',
       values: [`%${title}%`]
@@ -86,7 +85,6 @@ class SongService {
   }
 
   async querySongByPerformer (performer) {
-    // Create a query to get songs which contain performer
     const query = {
       text: 'SELECT * FROM songs WHERE LOWER(performer) LIKE LOWER($1)',
       values: [`%${performer}%`]
@@ -100,7 +98,6 @@ class SongService {
   }
 
   async querySongByTitleAndPerformer (title, performer) {
-    // Create a query to get songs which contain title and performer
     const query = {
       text: 'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1) AND LOWER(performer) LIKE LOWER($2)',
       values: [`%${title}%`, `%${performer}%`]

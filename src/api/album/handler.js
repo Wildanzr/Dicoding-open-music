@@ -65,6 +65,7 @@ class AlbumHandler {
       const songs = await this._service.checkIfAnySongExistByAlbumId(id)
 
       if (songs) {
+        // There is at least one song in album
         // Call service getSongByAlbumId
         const songs = await this._service.getSongByAlbumId(id)
 
@@ -75,6 +76,7 @@ class AlbumHandler {
           songs: songs
         }
       } else {
+        // There is no song in album yet
         // Map album to response object
         album = {
           id: album.id,
