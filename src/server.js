@@ -1,17 +1,36 @@
 require('dotenv').config()
-const Hapi = require('@hapi/hapi')
 
+// Hapi
+const Hapi = require('@hapi/hapi')
+const Jwt = require('@hapi/jwt')
+
+// Plugins
 const albums = require('./api/album/index')
 const songs = require('./api/music/index')
+const users = require('./api/user/index')
+const authentications = require('./api/authentication/index')
+
+// Validator
 const PayloadValidator = require('./utils/validation/index')
+
+// Service
 const AlbumService = require('./services/albumService')
 const SongService = require('./services/songService')
+const UserService = require('./services/userService')
+const AuthService = require('./services/authService')
+
+// Exception
 const ClientError = require('./exceptions/ClientError')
+
+// Utils
 const { failResponse } = require('./utils/response/index')
+const Tokenize = require('./utils/token/tokenize')
 
 const init = async () => {
   const albumService = new AlbumService()
   const songService = new SongService()
+  const userService = new UserService()
+  const authService = new AuthService()
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -23,21 +42,60 @@ const init = async () => {
     }
   })
 
-  await server.register({
-    plugin: albums,
-    options: {
-      service: albumService,
-      validator: PayloadValidator
+  await server.register([
+    {
+      plugin: Jwt
     }
+  ])
+
+  server.auth.strategy('open_music_jwt', 'jwt', {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id
+      }
+    })
   })
 
-  await server.register({
-    plugin: songs,
-    options: {
-      service: songService,
-      validator: PayloadValidator
+  await server.register([
+    {
+      plugin: albums,
+      options: {
+        service: albumService,
+        validator: PayloadValidator
+      }
+    },
+    {
+      plugin: songs,
+      options: {
+        service: songService,
+        validator: PayloadValidator
+      }
+    },
+    {
+      plugin: users,
+      options: {
+        service: userService,
+        validator: PayloadValidator
+      }
+    },
+    {
+      plugin: authentications,
+      options: {
+        authService,
+        userService,
+        tokenize: Tokenize,
+        validator: PayloadValidator
+      }
     }
-  })
+  ])
 
   server.ext('onPreResponse', (request, h) => {
     const { response } = request
