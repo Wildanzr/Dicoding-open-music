@@ -6,6 +6,8 @@ const songs = require('./api/music/index')
 const PayloadValidator = require('./utils/validation/index')
 const AlbumService = require('./services/albumService')
 const SongService = require('./services/songService')
+const ClientError = require('./exceptions/ClientError')
+const { failResponse } = require('./utils/response/index')
 
 const init = async () => {
   const albumService = new AlbumService()
@@ -35,6 +37,30 @@ const init = async () => {
       service: songService,
       validator: PayloadValidator
     }
+  })
+
+  server.ext('onPreResponse', (request, h) => {
+    const { response } = request
+
+    // If response is instance of ClientError
+    if (response instanceof ClientError) {
+      const res = failResponse('fail', response.message.replace(/['"]+/g, ''))
+      const newResponse = h.response(res)
+
+      newResponse.code(response.statusCode)
+      return newResponse
+
+      // If response is instance of Error
+    } if (response instanceof Error) {
+      const res = failResponse('error', response.message.replace(/['"]+/g, ''))
+      const newResponse = h.response(res)
+
+      newResponse.code(500)
+      return newResponse
+    }
+
+    // If response is not instance of ClientError or Error
+    return response.continue || response
   })
 
   await server.start()

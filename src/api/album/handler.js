@@ -1,5 +1,4 @@
-const ClientError = require('../../exceptions/ClientError')
-const { failResponse, successResponse } = require('../../utils/response/index')
+const { successResponse } = require('../../utils/response/index')
 
 class AlbumHandler {
   constructor (service, validator) {
@@ -32,26 +31,7 @@ class AlbumHandler {
 
       return response
     } catch (error) {
-      // Beautify error message
-      const message = error.message.replace(/['"]+/g, '')
-
-      // Check if error is a ClientError
-      if (error instanceof ClientError) {
-        // Make response object
-        const res = failResponse('fail', message)
-        const response = h.response(res)
-        response.code(error.statusCode)
-
-        return response
-      }
-
-      // Make response object
-      const res = failResponse('error', message)
-      const response = h.response(res)
-      response.code(500)
-
-      console.error(error)
-      return response
+      return error
     }
   }
 
@@ -63,12 +43,10 @@ class AlbumHandler {
 
       // Check if any song exist in album
       const songs = await this._service.checkIfAnySongExistByAlbumId(id)
-
       if (songs) {
         // There is at least one song in album
         // Call service getSongByAlbumId
         const songs = await this._service.getSongByAlbumId(id)
-
         album = {
           id: album.id,
           name: album.name,
@@ -92,26 +70,7 @@ class AlbumHandler {
 
       return response
     } catch (error) {
-      // Beautify error message
-      const message = error.message.replace(/['"]+/g, '')
-
-      // Check if error is a ClientError
-      if (error instanceof ClientError) {
-        // Make response object
-        const res = failResponse('fail', message)
-        const response = h.response(res)
-        response.code(error.statusCode)
-
-        return response
-      }
-
-      // Make response object
-      const res = failResponse('error', message)
-      const response = h.response(res)
-      response.code(500)
-
-      console.error(error)
-      return response
+      return error
     }
   }
 
@@ -135,26 +94,7 @@ class AlbumHandler {
 
       return response
     } catch (error) {
-      // Beautify error message
-      const message = error.message.replace(/['"]+/g, '')
-
-      // Check if error is a ClientError
-      if (error instanceof ClientError) {
-        // Make response object
-        const res = failResponse('fail', message)
-        const response = h.response(res)
-        response.code(error.statusCode)
-
-        return response
-      }
-
-      // Make response object
-      const res = failResponse('error', message)
-      const response = h.response(res)
-      response.code(500)
-
-      console.error(error)
-      return response
+      return error
     }
   }
 
@@ -171,26 +111,7 @@ class AlbumHandler {
 
       return response
     } catch (error) {
-      // Beautify error message
-      const message = error.message.replace(/['"]+/g, '')
-
-      // Check if error is a ClientError
-      if (error instanceof ClientError) {
-        // Make response object
-        const res = failResponse('fail', message)
-        const response = h.response(res)
-        response.code(error.statusCode)
-
-        return response
-      }
-
-      // Make response object
-      const res = failResponse('error', message)
-      const response = h.response(res)
-      response.code(500)
-
-      console.error(error)
-      return response
+      return error
     }
   }
 }

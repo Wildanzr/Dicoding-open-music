@@ -2,7 +2,6 @@ const { Pool } = require('pg')
 const { nanoid } = require('nanoid')
 const InvariantError = require('../exceptions/InvariantError')
 const NotFoundError = require('../exceptions/NotFoundError')
-const { mapSongToModel, mapSongsToModel } = require('../utils/mapping/index')
 
 class SongService {
   constructor () {
@@ -10,7 +9,7 @@ class SongService {
   }
 
   async addSong ({ title, year, genre, performer, duration, albumId }) {
-    const id = nanoid(16)
+    const id = `song-${nanoid(16)}`
 
     const query = {
       text: 'INSERT INTO songs (id, title, year, genre, performer, duration, album_id) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
@@ -26,7 +25,7 @@ class SongService {
 
   async getSongById (id) {
     const query = {
-      text: 'SELECT * FROM songs WHERE id = $1',
+      text: 'SELECT id, title, year, performer, genre, duration FROM songs WHERE id = $1',
       values: [id]
     }
 
@@ -34,19 +33,19 @@ class SongService {
 
     if (!res.rows.length) throw new NotFoundError('Song not found')
 
-    return res.rows.map(mapSongToModel)[0]
+    return res.rows[0]
   }
 
   async getAllSongs () {
     const query = {
-      text: 'SELECT * FROM songs'
+      text: 'SELECT id, title, performer FROM songs'
     }
 
     const res = await this._pool.query(query)
 
     if (!res.rows.length) throw new NotFoundError('No songs found')
 
-    return res.rows.map(mapSongsToModel)
+    return res.rows
   }
 
   async updateSong (id, { title, year, genre, performer, duration, albumId }) {
@@ -73,7 +72,7 @@ class SongService {
 
   async querySongByTitle (title) {
     const query = {
-      text: 'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1)',
+      text: 'SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE LOWER($1)',
       values: [`%${title}%`]
     }
 
@@ -81,12 +80,12 @@ class SongService {
 
     if (!res.rows.length) throw new NotFoundError('No songs found')
 
-    return res.rows.map(mapSongsToModel)
+    return res.rows
   }
 
   async querySongByPerformer (performer) {
     const query = {
-      text: 'SELECT * FROM songs WHERE LOWER(performer) LIKE LOWER($1)',
+      text: 'SELECT id, title, performer FROM songs WHERE LOWER(performer) LIKE LOWER($1)',
       values: [`%${performer}%`]
     }
 
@@ -94,12 +93,12 @@ class SongService {
 
     if (!res.rows.length) throw new NotFoundError('No songs found')
 
-    return res.rows.map(mapSongsToModel)
+    return res.rows
   }
 
   async querySongByTitleAndPerformer (title, performer) {
     const query = {
-      text: 'SELECT * FROM songs WHERE LOWER(title) LIKE LOWER($1) AND LOWER(performer) LIKE LOWER($2)',
+      text: 'SELECT id, title, performer FROM songs WHERE LOWER(title) LIKE LOWER($1) AND LOWER(performer) LIKE LOWER($2)',
       values: [`%${title}%`, `%${performer}%`]
     }
 
@@ -107,7 +106,7 @@ class SongService {
 
     if (!res.rows.length) throw new NotFoundError('No songs found')
 
-    return res.rows.map(mapSongsToModel)
+    return res.rows
   }
 }
 
