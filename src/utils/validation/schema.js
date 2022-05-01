@@ -19,15 +19,34 @@ const songSchema = Joi.object({
   albumId: Joi.string()
 })
 
-// User schema
+// User schema, note min 3 is for adaption with postman test
 const userSchema = Joi.object({
   username: Joi.string().required(),
-  password: Joi.string().min(5).required(),
+  password: Joi.string().min(3).required(),
   fullname: Joi.string().required()
+})
+
+// Authentication schema
+const authSchema = Joi.object({
+  username: Joi.string().required(),
+  password: Joi.string().min(3).required()
+})
+
+// Request new token schema
+const requestTokenSchema = Joi.object({
+  refreshToken: Joi.string().required()
+})
+
+// Delete token schema
+const deleteTokenSchema = Joi.object({
+  refreshToken: Joi.string().required()
 })
 
 module.exports = {
   albumSchema,
   songSchema,
-  userSchema
+  userSchema,
+  authSchema,
+  requestTokenSchema,
+  deleteTokenSchema
 }

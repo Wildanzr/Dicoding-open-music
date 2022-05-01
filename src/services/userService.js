@@ -2,6 +2,7 @@ const { Pool } = require('pg')
 const { nanoid } = require('nanoid')
 const bcrypt = require('bcrypt')
 const InvariantError = require('../exceptions/InvariantError')
+const AuthenticationError = require('../exceptions/AuthenticationError')
 
 class UserService {
   constructor () {
@@ -27,6 +28,23 @@ class UserService {
     if (!result.rows.length) throw new InvariantError('Register fail')
 
     return result.rows[0].id
+  }
+
+  async verifyUser ({ username, password }) {
+    const query = {
+      text: 'SELECT * FROM users WHERE username = $1',
+      values: [username]
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows.length) throw new AuthenticationError('Invalid username or password')
+
+    const user = result.rows[0]
+
+    if (!(await bcrypt.compare(password, user.password))) throw new AuthenticationError('Invalid username or password')
+
+    return user.id
   }
 
   async verifyUsername (username) {
