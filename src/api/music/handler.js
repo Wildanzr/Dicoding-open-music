@@ -1,5 +1,4 @@
-const ClientError = require('../../exceptions/ClientError')
-const { failResponse, successResponse } = require('../../utils/response/index')
+const { successResponse } = require('../../utils/response/index')
 
 class SongHandler {
   constructor (service, validator) {
@@ -32,26 +31,7 @@ class SongHandler {
 
       return response
     } catch (error) {
-      // Beautify error message
-      const message = error.message.replace(/['"]+/g, '')
-
-      // Check if error is a ClientError
-      if (error instanceof ClientError) {
-        // Make response object
-        const res = failResponse('fail', message)
-        const response = h.response(res)
-        response.code(error.statusCode)
-
-        return response
-      }
-
-      // Make response object
-      const res = failResponse('error', message)
-      const response = h.response(res)
-      response.code(500)
-
-      console.error(error)
-      return response
+      return error
     }
   }
 
@@ -68,26 +48,7 @@ class SongHandler {
 
       return response
     } catch (error) {
-      // Beautify error message
-      const message = error.message.replace(/['"]+/g, '')
-
-      // Check if error is a ClientError
-      if (error instanceof ClientError) {
-        // Make response object
-        const res = failResponse('fail', message)
-        const response = h.response(res)
-        response.code(error.statusCode)
-
-        return response
-      }
-
-      // Make response object
-      const res = failResponse('error', message)
-      const response = h.response(res)
-      response.code(500)
-
-      console.error(error)
-      return response
+      return error
     }
   }
 
@@ -116,26 +77,7 @@ class SongHandler {
 
       return response
     } catch (error) {
-      // Beautify error message
-      const message = error.message.replace(/['"]+/g, '')
-
-      // Check if error is a ClientError
-      if (error instanceof ClientError) {
-        // Make response object
-        const res = failResponse('fail', message)
-        const response = h.response(res)
-        response.code(error.statusCode)
-
-        return response
-      }
-
-      // Make response object
-      const res = failResponse('error', message)
-      const response = h.response(res)
-      response.code(500)
-
-      console.error(error)
-      return response
+      return error
     }
   }
 
@@ -159,26 +101,7 @@ class SongHandler {
 
       return response
     } catch (error) {
-      // Beautify error message
-      const message = error.message.replace(/['"]+/g, '')
-
-      // Check if error is a ClientError
-      if (error instanceof ClientError) {
-        // Make response object
-        const res = failResponse('fail', message)
-        const response = h.response(res)
-        response.code(error.statusCode)
-
-        return response
-      }
-
-      // Make response object
-      const res = failResponse('error', message)
-      const response = h.response(res)
-      response.code(500)
-
-      console.error(error)
-      return response
+      return error
     }
   }
 
@@ -195,26 +118,7 @@ class SongHandler {
 
       return response
     } catch (error) {
-      // Beautify error message
-      const message = error.message.replace(/['"]+/g, '')
-
-      // Check if error is a ClientError
-      if (error instanceof ClientError) {
-        // Make response object
-        const res = failResponse('fail', message)
-        const response = h.response(res)
-        response.code(error.statusCode)
-
-        return response
-      }
-
-      // Make response object
-      const res = failResponse('error', message)
-      const response = h.response(res)
-      response.code(500)
-
-      console.error(error)
-      return response
+      return error
     }
   }
 }

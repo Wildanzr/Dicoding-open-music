@@ -4,7 +4,7 @@ const Hapi = require('@hapi/hapi')
 // Plugins
 const albums = require('./api/album/index')
 const songs = require('./api/music/index')
-const users = require('./api/users/index')
+const users = require('./api/user/index')
 
 // Validator
 const PayloadValidator = require('./utils/validation/index')
