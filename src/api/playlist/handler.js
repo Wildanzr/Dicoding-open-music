@@ -67,7 +67,7 @@ class PlaylistHandler {
       await this._validator.validateDeletePlaylistPayload({ id })
 
       // Call service delete playlist
-      await this._service.deletePlaylist(id)
+      await this._service.deletePlaylist(id, userId)
 
       // Response object
       const res = successResponse('Delete playlist success')
@@ -140,6 +140,9 @@ class PlaylistHandler {
     const { id } = request.params
 
     try {
+      // Get id from auth token
+      const { id: userId } = request.auth.credentials
+
       // Destructure payload
       const { songId } = payload
 
@@ -147,7 +150,7 @@ class PlaylistHandler {
       await this._validator.validateDeleteSongFromPlaylist({ id, songId })
 
       // Call service add SongToPlaylist
-      await this._service.deleeSongFromPlaylist(id, songId)
+      await this._service.deleteSongFromPlaylist(id, songId, userId)
 
       const res = successResponse('Delete song from current playlist success')
       const response = h.response(res)

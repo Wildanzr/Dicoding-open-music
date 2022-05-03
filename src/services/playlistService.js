@@ -60,7 +60,10 @@ class PlaylistService {
     return result.rows
   }
 
-  async deletePlaylist (id) {
+  async deletePlaylist (id, userId) {
+    // Verify owner
+    await this.verifyPlaylistOwner(id, userId)
+
     const query = {
       text: 'DELETE FROM playlists WHERE id = $1',
       values: [id]
@@ -78,7 +81,10 @@ class PlaylistService {
     return await this._playlistSongService.addSongToPlaylist(playlistId, songId)
   }
 
-  async deleteSongFromPlaylist (playlistId, songId) {
+  async deleteSongFromPlaylist (playlistId, songId, userId) {
+    // Verify owner or collaborator
+    await this.verifyPlaylistAccess(playlistId, userId)
+
     return await this._playlistSongService.deleteSongFromPlaylist(playlistId, songId)
   }
 
