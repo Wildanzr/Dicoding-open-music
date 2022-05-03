@@ -42,11 +42,43 @@ const deleteTokenSchema = Joi.object({
   refreshToken: Joi.string().required()
 })
 
+// Create playlist schema
+const createPlaylistSchema = Joi.object({
+  name: Joi.string().required()
+})
+
+// Delete playlist schema
+const deletePlaylistSchema = Joi.object({
+  id: Joi.string().required()
+})
+
+// Add Song to Playlist
+const addSongToPlaylist = Joi.object({
+  id: Joi.string().required(),
+  songId: Joi.string().required()
+})
+
+// Delete song from Playlist
+const deletSongFromPlaylist = Joi.object({
+  id: Joi.string().required(),
+  songId: Joi.string().required()
+})
+
+// Get playlist songs
+const getPlaylistSongs = Joi.object({
+  id: Joi.string().required()
+})
+
 module.exports = {
   albumSchema,
   songSchema,
   userSchema,
   authSchema,
   requestTokenSchema,
-  deleteTokenSchema
+  deleteTokenSchema,
+  createPlaylistSchema,
+  deletePlaylistSchema,
+  addSongToPlaylist,
+  deletSongFromPlaylist,
+  getPlaylistSongs
 }
