@@ -9,6 +9,7 @@ const albums = require('./api/album/index')
 const songs = require('./api/music/index')
 const users = require('./api/user/index')
 const authentications = require('./api/authentication/index')
+const playlists = require('./api/playlist/index')
 
 // Validator
 const PayloadValidator = require('./utils/validation/index')
@@ -18,6 +19,8 @@ const AlbumService = require('./services/albumService')
 const SongService = require('./services/songService')
 const UserService = require('./services/userService')
 const AuthService = require('./services/authService')
+const PlaylistService = require('./services/playlistService')
+const PlaylistSongService = require('./services/playlistSongService')
 
 // Exception
 const ClientError = require('./exceptions/ClientError')
@@ -31,6 +34,8 @@ const init = async () => {
   const songService = new SongService()
   const userService = new UserService()
   const authService = new AuthService()
+  const playlistSongService = new PlaylistSongService()
+  const playlistService = new PlaylistService()
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -48,7 +53,7 @@ const init = async () => {
     }
   ])
 
-  server.auth.strategy('open_music_jwt', 'jwt', {
+  server.auth.strategy('jwt_auth', 'jwt', {
     keys: process.env.ACCESS_TOKEN_KEY,
     verify: {
       aud: false,
@@ -59,7 +64,7 @@ const init = async () => {
     validate: (artifacts) => ({
       isValid: true,
       credentials: {
-        id: artifacts.decoded.payload.id
+        id: artifacts.decoded.payload.userId
       }
     })
   })
@@ -94,6 +99,15 @@ const init = async () => {
         tokenize: Tokenize,
         validator: PayloadValidator
       }
+    },
+    {
+      plugin: playlists,
+      options: {
+        service: playlistService,
+        songService,
+        playlistSongService,
+        validator: PayloadValidator
+      }
     }
   ])
 
@@ -113,7 +127,9 @@ const init = async () => {
       const res = failResponse('error', response.message.replace(/['"]+/g, ''))
       const newResponse = h.response(res)
 
-      newResponse.code(500)
+      if (response.output.statusCode === 401) newResponse.code(401)
+      else newResponse.code(500)
+
       return newResponse
     }
 

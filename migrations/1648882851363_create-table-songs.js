@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 
 exports.up = pgm => {
+  // Create table
   pgm.createTable('songs', {
     id: {
       type: 'VARCHAR(50)',
@@ -39,6 +40,9 @@ exports.up = pgm => {
       default: pgm.func('current_timestamp')
     }
   })
+
+  // Add foreign key
+  pgm.addConstraint('songs', 'fk_songs.album_id_albums.id', 'FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE')
 }
 
 exports.down = pgm => { pgm.dropTable('songs') }

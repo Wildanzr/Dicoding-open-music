@@ -4,7 +4,12 @@ const {
   userSchema,
   authSchema,
   requestTokenSchema,
-  deleteTokenSchema
+  deleteTokenSchema,
+  createPlaylistSchema,
+  deletePlaylistSchema,
+  addSongToPlaylist,
+  getPlaylistSongs,
+  deletSongFromPlaylist
 } = require('./schema')
 
 const InvariantError = require('../../exceptions/InvariantError')
@@ -42,6 +47,36 @@ const PayloadValidator = {
 
   validateDeleteTokenPayload: (payload) => {
     const validationResult = deleteTokenSchema.validate(payload)
+
+    if (validationResult.error) throw new InvariantError(validationResult.error.message)
+  },
+
+  validateCreatePlaylistPayload: (payload) => {
+    const validationResult = createPlaylistSchema.validate(payload)
+
+    if (validationResult.error) throw new InvariantError(validationResult.error.message)
+  },
+
+  validateDeletePlaylistPayload: (payload) => {
+    const validationResult = deletePlaylistSchema.validate(payload)
+
+    if (validationResult.error) throw new InvariantError(validationResult.error.message)
+  },
+
+  validateAddSongToPlaylist: (payload) => {
+    const validationResult = addSongToPlaylist.validate(payload)
+
+    if (validationResult.error) throw new InvariantError(validationResult.error.message)
+  },
+
+  validateDeleteSongFromPlaylist: (payload) => {
+    const validationResult = deletSongFromPlaylist.validate(payload)
+
+    if (validationResult.error) throw new InvariantError(validationResult.error.message)
+  },
+
+  validateGetPlaylistSongs: (payload) => {
+    const validationResult = getPlaylistSongs.validate(payload)
 
     if (validationResult.error) throw new InvariantError(validationResult.error.message)
   }
