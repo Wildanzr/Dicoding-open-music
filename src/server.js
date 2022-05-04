@@ -20,6 +20,7 @@ const SongService = require('./services/songService')
 const UserService = require('./services/userService')
 const AuthService = require('./services/authService')
 const PlaylistService = require('./services/playlistService')
+const PlaylistSongService = require('./services/playlistSongService')
 
 // Exception
 const ClientError = require('./exceptions/ClientError')
@@ -33,6 +34,7 @@ const init = async () => {
   const songService = new SongService()
   const userService = new UserService()
   const authService = new AuthService()
+  const playlistSongService = new PlaylistSongService()
   const playlistService = new PlaylistService()
 
   const server = Hapi.server({
@@ -102,6 +104,8 @@ const init = async () => {
       plugin: playlists,
       options: {
         service: playlistService,
+        songService,
+        playlistSongService,
         validator: PayloadValidator
       }
     }

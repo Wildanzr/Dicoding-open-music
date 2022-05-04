@@ -1,8 +1,10 @@
 const { successResponse } = require('../../utils/response/index')
 
 class PlaylistHandler {
-  constructor (service, validator) {
+  constructor (service, songService, playlistSongService, validator) {
     this._service = service
+    this._songService = songService
+    this._playlistSongService = playlistSongService
     this._validator = validator
 
     this.createPlaylist = this.createPlaylist.bind(this)
@@ -68,6 +70,7 @@ class PlaylistHandler {
 
       // Call service delete playlist
       await this._service.deletePlaylist(id, userId)
+      await this._playlistSongService.removeAllSongFromPlaylist(id)
 
       // Response object
       const res = successResponse('Delete playlist success')
@@ -94,8 +97,14 @@ class PlaylistHandler {
       // Validate payload and params
       await this._validator.validateAddSongToPlaylist({ id, songId })
 
+      // Verify owner or collaborator
+      await this._service.verifyPlaylistAccess(id, userId)
+
+      // Make sure the song is exist
+      await this._songService.getSongById(songId)
+
       // Call service add SongToPlaylist
-      await this._service.addSongToPlaylist(id, songId, userId)
+      await this._playlistSongService.addSongToPlaylist(id, songId)
 
       const res = successResponse('Add song to current playlist success')
       const response = h.response(res)
@@ -119,7 +128,7 @@ class PlaylistHandler {
 
       // Call service get playlist detail
       const playlist = await this._service.getPlaylistDetails(id, userId)
-      const songs = await this._service.getAllSongInCurrentPlaylist(id)
+      const songs = await this._playlistSongService.getAllSongFromPlaylist(id)
 
       // Add songs in playlist payload
       playlist.songs = songs
@@ -149,8 +158,11 @@ class PlaylistHandler {
       // Validate payload and params
       await this._validator.validateDeleteSongFromPlaylist({ id, songId })
 
-      // Call service add SongToPlaylist
-      await this._service.deleteSongFromPlaylist(id, songId, userId)
+      // Verify owner or collaborator
+      await this._service.verifyPlaylistAccess(id, userId)
+
+      // Call service delete song from playlist
+      await this._playlistSongService.deleteSongFromPlaylist(id, songId)
 
       const res = successResponse('Delete song from current playlist success')
       const response = h.response(res)

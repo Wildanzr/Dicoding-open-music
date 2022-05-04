@@ -1,9 +1,6 @@
 const { Pool } = require('pg')
 const { nanoid } = require('nanoid')
 
-const SongService = require('./songService')
-const PlaylistSongService = require('./playlistSongService')
-
 const InvariantError = require('../exceptions/InvariantError')
 const NotFoundError = require('../exceptions/NotFoundError')
 const AuthorizationError = require('../exceptions/AuthorizationError')
@@ -11,8 +8,6 @@ const AuthorizationError = require('../exceptions/AuthorizationError')
 class PlaylistService {
   constructor () {
     this._pool = new Pool()
-    this._playlistSongService = new PlaylistSongService()
-    this._songService = new SongService()
   }
 
   async createPlaylist (name, userId) {
@@ -70,26 +65,6 @@ class PlaylistService {
     }
 
     await this._pool.query(query)
-    await this._playlistSongService.removeAllSongFromPlaylist(id)
-  }
-
-  async addSongToPlaylist (playlistId, songId, userId) {
-    // Verify owner or collaborator
-    await this.verifyPlaylistAccess(playlistId, userId)
-    // Make sure the song is exist
-    await this._songService.getSongById(songId)
-    return await this._playlistSongService.addSongToPlaylist(playlistId, songId)
-  }
-
-  async deleteSongFromPlaylist (playlistId, songId, userId) {
-    // Verify owner or collaborator
-    await this.verifyPlaylistAccess(playlistId, userId)
-
-    return await this._playlistSongService.deleteSongFromPlaylist(playlistId, songId)
-  }
-
-  async getAllSongInCurrentPlaylist (id) {
-    return await this._playlistSongService.getAllSongFromPlaylist(id)
   }
 
   async verifyPlaylistOwner (playlistId, userId) {
