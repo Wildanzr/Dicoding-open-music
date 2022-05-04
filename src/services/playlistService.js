@@ -28,9 +28,6 @@ class PlaylistService {
   }
 
   async getPlaylistDetails (id, userId) {
-    // Verify owner or collaborator
-    await this.verifyPlaylistAccess(id, userId)
-
     const query = {
       text: 'SELECT pl.id, pl.name, us.username FROM playlists pl INNER JOIN users us ON pl.owner = us.id WHERE pl.id = $1',
       values: [id]
@@ -119,6 +116,15 @@ class PlaylistService {
     if (result.rows[0].owner !== userId) throw new AuthorizationError('You are not the owner of this playlist')
 
     if (result.rows[0].owner === collaboratorId) throw new InvariantError('You cannot add or remove yourself as a collaborator')
+  }
+
+  async updatePlaylistActivity (playlistId, updateAt) {
+    const query = {
+      text: 'UPDATE playlists SET updated_at = $2 WHERE id = $1',
+      values: [playlistId, updateAt]
+    }
+
+    await this._pool.query(query)
   }
 }
 

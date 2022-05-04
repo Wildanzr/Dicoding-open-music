@@ -69,6 +69,11 @@ const getPlaylistSongs = Joi.object({
   id: Joi.string().required()
 })
 
+// Get playlist activity
+const playlistActivitySchema = Joi.object({
+  id: Joi.string().required()
+})
+
 // Add or delete collaboration
 const collaborationSchema = Joi.object({
   playlistId: Joi.string().required(),
@@ -87,5 +92,6 @@ module.exports = {
   addSongToPlaylist,
   deletSongFromPlaylist,
   getPlaylistSongs,
-  collaborationSchema
+  collaborationSchema,
+  playlistActivitySchema
 }

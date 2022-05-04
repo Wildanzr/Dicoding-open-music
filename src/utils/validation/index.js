@@ -10,7 +10,8 @@ const {
   addSongToPlaylist,
   getPlaylistSongs,
   deletSongFromPlaylist,
-  collaborationSchema
+  collaborationSchema,
+  playlistActivitySchema
 } = require('./schema')
 
 const InvariantError = require('../../exceptions/InvariantError')
@@ -84,6 +85,12 @@ const PayloadValidator = {
 
   validateCollaborationPayload: (payload) => {
     const validationResult = collaborationSchema.validate(payload)
+
+    if (validationResult.error) throw new InvariantError(validationResult.error.message)
+  },
+
+  validatePlaylistActivityPayload: (payload) => {
+    const validationResult = playlistActivitySchema.validate(payload)
 
     if (validationResult.error) throw new InvariantError(validationResult.error.message)
   }
