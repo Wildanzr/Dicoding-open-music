@@ -1,10 +1,11 @@
 const { successResponse } = require('../../utils/response/index')
 
 class PlaylistHandler {
-  constructor (service, songService, playlistSongService, validator) {
+  constructor (service, songService, playlistSongService, playlistSongActivity, validator) {
     this._service = service
     this._songService = songService
     this._playlistSongService = playlistSongService
+    this._playlistSongActivity = playlistSongActivity
     this._validator = validator
 
     this.createPlaylist = this.createPlaylist.bind(this)
@@ -13,6 +14,7 @@ class PlaylistHandler {
     this.addSongToPlaylist = this.addSongToPlaylist.bind(this)
     this.getPlaylistSongs = this.getPlaylistSongs.bind(this)
     this.deleteSongFromPlaylist = this.deleteSongFromPlaylist.bind(this)
+    this.getPlaylistActivities = this.getPlaylistActivities.bind(this)
   }
 
   async createPlaylist (request, h) {
@@ -46,6 +48,12 @@ class PlaylistHandler {
 
       // Call service get all playlists with owner
       const playlists = await this._service.getAllPlaylistsWithOwner(userId)
+
+      // Call service get all playlist with collaborator
+      const collaborators = await this._service.getAllPlaylistWithCollaborator(userId)
+
+      // Add playlist with collaborator to playlists
+      playlists.push(...collaborators)
 
       // Response object
       const res = successResponse(null, { playlists })
@@ -105,6 +113,7 @@ class PlaylistHandler {
 
       // Call service add SongToPlaylist
       await this._playlistSongService.addSongToPlaylist(id, songId)
+      await this._playlistSongActivity.recordAdd(id, songId, userId)
 
       const res = successResponse('Add song to current playlist success')
       const response = h.response(res)
@@ -125,6 +134,9 @@ class PlaylistHandler {
 
       // Validate payload
       this._validator.validateGetPlaylistSongs({ id })
+
+      // Verify owner or collaborator
+      await this._service.verifyPlaylistAccess(id, userId)
 
       // Call service get playlist detail
       const playlist = await this._service.getPlaylistDetails(id, userId)
@@ -163,10 +175,41 @@ class PlaylistHandler {
 
       // Call service delete song from playlist
       await this._playlistSongService.deleteSongFromPlaylist(id, songId)
+      await this._playlistSongActivity.recordDelete(id, songId, userId)
 
       const res = successResponse('Delete song from current playlist success')
       const response = h.response(res)
       response.statusCod = 200
+
+      return response
+    } catch (error) {
+      return error
+    }
+  }
+
+  async getPlaylistActivities (request, h) {
+    const { id } = request.params
+    try {
+      // Get id from auth token
+      const { id: userId } = request.auth.credentials
+
+      // Validate payload
+      this._validator.validatePlaylistActivityPayload({ id })
+
+      // Verify owner or collaborator
+      await this._service.verifyPlaylistAccess(id, userId)
+
+      // Get playlist details
+      const playlist = await this._service.getPlaylistDetails(id, userId)
+      const activities = await this._playlistSongActivity.getAllActivityFromPlaylist(id)
+
+      // Response object
+      const res = successResponse(null, {
+        playlistId: playlist.id,
+        activities
+      })
+      const response = h.response(res)
+      response.statusCode = 200
 
       return response
     } catch (error) {

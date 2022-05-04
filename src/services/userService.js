@@ -2,6 +2,7 @@ const { Pool } = require('pg')
 const { nanoid } = require('nanoid')
 const bcrypt = require('bcrypt')
 const InvariantError = require('../exceptions/InvariantError')
+const NotFoundError = require('../exceptions/NotFoundError')
 const AuthenticationError = require('../exceptions/AuthenticationError')
 
 class UserService {
@@ -56,6 +57,17 @@ class UserService {
     const result = await this._pool.query(query)
 
     if (result.rows.length > 0) throw new InvariantError('Username already exists')
+  }
+
+  async checkUserIsExist (id) {
+    const query = {
+      text: 'SELECT * FROM users WHERE id = $1',
+      values: [id]
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows.length) throw new NotFoundError('User not found')
   }
 }
 

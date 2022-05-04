@@ -10,6 +10,7 @@ const songs = require('./api/music/index')
 const users = require('./api/user/index')
 const authentications = require('./api/authentication/index')
 const playlists = require('./api/playlist/index')
+const collaborations = require('./api/collaboration/index')
 
 // Validator
 const PayloadValidator = require('./utils/validation/index')
@@ -21,6 +22,8 @@ const UserService = require('./services/userService')
 const AuthService = require('./services/authService')
 const PlaylistService = require('./services/playlistService')
 const PlaylistSongService = require('./services/playlistSongService')
+const CollaborationService = require('./services/collaborationService')
+const PlaylistSongActivity = require('./services/playlistSongActivity')
 
 // Exception
 const ClientError = require('./exceptions/ClientError')
@@ -35,7 +38,9 @@ const init = async () => {
   const userService = new UserService()
   const authService = new AuthService()
   const playlistSongService = new PlaylistSongService()
-  const playlistService = new PlaylistService()
+  const collaborationService = new CollaborationService()
+  const playlistService = new PlaylistService(collaborationService)
+  const playlistSongActivity = new PlaylistSongActivity(playlistService)
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -106,6 +111,16 @@ const init = async () => {
         service: playlistService,
         songService,
         playlistSongService,
+        playlistSongActivity,
+        validator: PayloadValidator
+      }
+    },
+    {
+      plugin: collaborations,
+      options: {
+        service: collaborationService,
+        userService,
+        playlistService,
         validator: PayloadValidator
       }
     }
