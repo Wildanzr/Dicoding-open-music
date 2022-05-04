@@ -6,8 +6,9 @@ const NotFoundError = require('../exceptions/NotFoundError')
 const AuthorizationError = require('../exceptions/AuthorizationError')
 
 class PlaylistService {
-  constructor () {
+  constructor (collaborationService) {
     this._pool = new Pool()
+    this._collaborationService = collaborationService
   }
 
   async createPlaylist (name, userId) {
@@ -50,7 +51,16 @@ class PlaylistService {
 
     const result = await this._pool.query(query)
 
-    if (!result.rows.length) throw new NotFoundError('No playlists found')
+    return result.rows
+  }
+
+  async getAllPlaylistWithCollaborator (userId) {
+    const query = {
+      text: 'SELECT pl.id, pl.name, us.username FROM playlists pl INNER JOIN collaborations cl ON cl.playlist_id = pl.id INNER JOIN users us ON us.id = pl.owner WHERE cl.user_id = $1',
+      values: [userId]
+    }
+
+    const result = await this._pool.query(query)
 
     return result.rows
   }
@@ -88,8 +98,27 @@ class PlaylistService {
         throw error
       }
 
-      throw error
+      try {
+        await this._collaborationService.verifyPlaylistCollaborator(playlistId, userId)
+      } catch {
+        throw error
+      }
     }
+  }
+
+  async checkPlaylistIsExistAndTheOwner (playlistId, collaboratorId, userId) {
+    const query = {
+      text: 'SELECT owner FROM playlists WHERE id = $1',
+      values: [playlistId]
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows.length) throw new NotFoundError('No playlist found')
+
+    if (result.rows[0].owner !== userId) throw new AuthorizationError('You are not the owner of this playlist')
+
+    if (result.rows[0].owner === collaboratorId) throw new InvariantError('You cannot add or remove yourself as a collaborator')
   }
 }
 

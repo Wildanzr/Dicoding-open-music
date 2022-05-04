@@ -47,6 +47,12 @@ class PlaylistHandler {
       // Call service get all playlists with owner
       const playlists = await this._service.getAllPlaylistsWithOwner(userId)
 
+      // Call service get all playlist with collaborator
+      const collaborators = await this._service.getAllPlaylistWithCollaborator(userId)
+
+      // Add playlist with collaborator to playlists
+      playlists.push(...collaborators)
+
       // Response object
       const res = successResponse(null, { playlists })
       const response = h.response(res)
