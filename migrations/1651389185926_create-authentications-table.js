@@ -13,14 +13,6 @@ exports.up = pgm => {
     token: {
       type: 'TEXT',
       notNull: true
-    },
-    created_at: {
-      type: 'TEXT',
-      notNull: true
-    },
-    updated_at: {
-      type: 'TEXT',
-      notNull: true
     }
   })
 }
